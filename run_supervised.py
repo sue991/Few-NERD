@@ -218,8 +218,9 @@ def evaluate(args, model, tokenizer, labels, pad_token_label_id, mode, prefix=""
                       # XLM and RoBERTa don"t use segment_ids
                       "labels": batch[3]}
             outputs = model(**inputs)
+            
             tmp_eval_loss, logits = outputs[0], outputs[1]
-            eval_loss += tmp_eval_loss.item()
+            eval_loss += tmp_eval_loss.mean().item()
         nb_eval_steps += 1
         if preds is None:
             preds = logits.detach().cpu().numpy()
