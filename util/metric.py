@@ -132,7 +132,7 @@ class Metrics():
         pred_cnt = self.__get_cnt__(pred_class_span)
         label_cnt = self.__get_cnt__(label_class_span)
         correct_cnt = self.__get_intersect_by_entity__(pred_class_span, label_class_span)
-        return pred_cnt, label_cnt, correct_cnt
+        return pred_cnt, label_cnt, correct_cnt 
 
     def metrics_by_entity(self, pred, label):
         pred_cnt = 0
@@ -147,6 +147,44 @@ class Metrics():
         recall = correct_cnt / (label_cnt + 1e-8)
         f1 = 2 * precision * recall / (precision + recall)
         return precision, recall, f1
+
+
+    def __get_class_cnt__(self, label_class_span):
+        '''
+        return the count of entities per class
+        '''
+        cnt = {}
+        for label in label_class_span:
+            cnt[label] = len(label_class_span[label])
+        return cnt
+
+
+    def __get_intersect_by_entity_class__(self, pred_class_span, label_class_span):
+        '''
+        return the count of correct entity per class
+        '''
+        cnt = {}
+        for label in label_class_span:
+            cnt[label] = len(list(set(label_class_span[label]).intersection(set(pred_class_span.get(label,[])))))
+        return cnt
+
+
+    def class_f1_score(self, pred, label):
+        pred_class_span = self.__get_class_span_dict__(pred, is_string=True)
+        label_class_span = self.__get_class_span_dict__(label, is_string=True)
+        pred_class_cnt = self.__get_class_cnt__(pred_class_span)
+        label_class_cnt = self.__get_class_cnt__(label_class_span)
+        correct_class_cnt = self.__get_intersect_by_entity_class__(pred_class_span, label_class_span)
+
+        class_metric = {}
+        for label in pred_class_cnt:
+            precision = correct_class_cnt[label] / (pred_class_cnt[label] + 1e-8)
+            recall = correct_class_cnt[label] / (label_class_cnt[label] + 1e-8)
+            f1 = 2 * precision * recall / (precision + recall)
+            
+            class_metric[label] = (precision, recall, f1)
+        
+        return class_metric
 
 
     def plot_confusion_matrix(self, con_mat, labels, save_path, title='Confusion Matrix', cmap=plt.cm.get_cmap('Blues'),
