@@ -170,6 +170,7 @@ class Metrics():
 
 
     def class_f1_score(self, pred, label):
+        
         pred_class_span = self.__get_class_span_dict__(pred, is_string=True)
         label_class_span = self.__get_class_span_dict__(label, is_string=True)
         pred_class_cnt = self.__get_class_cnt__(pred_class_span)
